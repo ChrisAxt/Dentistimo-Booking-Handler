@@ -11,5 +11,10 @@
   "license": "ISC",
   "devDependencies": {
     "jest": "^27.3.1"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^6.0.13",
+    "mqtt": "^4.2.8"
   }
 }
