@@ -16,5 +16,9 @@
     "express": "^4.17.1",
     "mongoose": "^6.0.13",
     "mqtt": "^4.2.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.chalmers.se:courses/dit355/test-teams-formation/team-5/booking-handler.git"
   }
 }
