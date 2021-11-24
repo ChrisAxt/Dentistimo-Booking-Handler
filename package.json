@@ -2,7 +2,7 @@
   "name": "Booking_Handler",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "BookingHandler.js",
   "scripts": {
     "unit-test": "jest"
   },
