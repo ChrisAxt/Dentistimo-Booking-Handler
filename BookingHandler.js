@@ -20,13 +20,13 @@ const client = mqtt.connect(HOST) //Change the parameter between HOST or LOCALHO
  */
 client.on('connect', function() {
     console.log("Connected to Mqtt broker successfully" )
-    client.subscribe('Book', function (err) {
+    client.subscribe('/Team5/Dentisimo/Book', function (err) {
         if (!err) {
             client.on('message', function (topic, message) {
                 const newBooking = JSON.parse(message.toString());
                 //TODO: post the new booking into the DB
                 //TODO: Probably adapt the message sent via MQTT or the topics to adapt if successful or not
-                client.publish('BookingStatus', newBooking.toString(), {qos:0} ) //TODO: This has to be changed into the response from the DB eventually
+                client.publish('/Team5/Dentisimo/BookingStatus', newBooking.toString(), {qos:0} ) //TODO: This has to be changed into the response from the DB eventually
             } )
         }
     })
