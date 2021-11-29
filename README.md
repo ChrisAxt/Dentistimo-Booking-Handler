@@ -1,6 +1,6 @@
 # Booking Handler
 
-Distributed System handling the bookings for the DENTISIMO project
+Distributed System handling the bookings for the DENTISTIMO project
 
 Responsibilities:
 - Listen to MQQT broker for booking data from front end
