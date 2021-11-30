@@ -38,7 +38,7 @@ mqtt.client.on('message', function(topic, message){
 
 /**
  * Handle a new booking request and publish the result to the status topic via mqtt
- * @param message as a buffer or a string
+ * @param message as Stringified json object sent via mqtt. -> format of the object should follow the booking.js model
  */
 function createNewBooking(message) {
     let newBooking = new Booking(JSON.parse(message.toString()))
@@ -64,12 +64,21 @@ function saveBookingToDB(newBooking) {
     return result
 }
 
+/**
+ * handles the delete request for a given booking.
+ * @param message as Stringified json object sent via mqtt. -> needs the _id of the booking in the json object.
+ */
 function deleteBooking(message) {
     let booking = JSON.parse(message.toString())
     let deleteResult = deleteFromDatabase(booking)
     mqtt.publishToTopic(deleteBookingStatusTopic, JSON.stringify(deleteResult), {qos:1})
 }
 
+/**
+ * delete the given booking (_id based) from the database and return the result of the operation.
+ * @param booking as an json object with the _id key value pair of the booking to be deleted.
+ * @returns result of the operation
+ */
 function deleteFromDatabase(booking){
     let bookingId = booking._id;
     let result;
