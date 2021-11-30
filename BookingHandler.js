@@ -10,7 +10,8 @@ const createBookingTopic = '/Team5/Dentistimo/Booking/Create'
 const deleteBookingTopic = '/Team5/Dentistimo/Booking/Delete'
 
 /** Published topics for MQTT */
-const statusTopic = '/Team5/Dentistimo/BookingStatus'
+const createBookingStatusTopic = '/Team5/Dentistimo/BookingStatus/Create'
+const deleteBookingStatusTopic = '/Team5/Dentistimo/BookingStatus/delete'
 
 /** Import the Mqtt file which connects to the broker and provide client,as well as publishing and subscribing functions */
 const mqtt = require('./Mqtt')
@@ -28,7 +29,7 @@ mqtt.client.on('message', function(topic, message){
             createNewBooking(message);
             break;
         case deleteBookingTopic:
-            //TODO: insert delete method handler here
+            deleteBooking(message);
             break;
         default:
             break;
@@ -42,7 +43,7 @@ mqtt.client.on('message', function(topic, message){
 function createNewBooking(message) {
     let newBooking = new Booking(JSON.parse(message.toString()))
     let bookingResult = saveBookingToDB(newBooking)
-    mqtt.publishToTopic(statusTopic, JSON.stringify(bookingResult), {qos:1})
+    mqtt.publishToTopic(createBookingStatusTopic, JSON.stringify(bookingResult), {qos:1})
 }
 
 /**
@@ -61,4 +62,23 @@ function saveBookingToDB(newBooking) {
         }
     })
     return result
+}
+
+function deleteBooking(message) {
+    let booking = JSON.parse(message.toString())
+    let deleteResult = deleteFromDatabase(booking)
+    mqtt.publishToTopic(deleteBookingStatusTopic, JSON.stringify(deleteResult), {qos:1})
+}
+
+function deleteFromDatabase(booking){
+    let bookingId = booking._id;
+    let result;
+    Booking.findOneAndDelete({'_id': bookingId}, function(err, booking){
+        if (err){
+            result = err.message
+        }else{
+            result = booking
+        }
+    })
+    return result;
 }
