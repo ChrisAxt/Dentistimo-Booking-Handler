@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const Booking = new Schema({ 
     name: String,
     userID: String,
-    requestID: String,
+    clinicID: String,
     date: String,
     startTime: String,
     endTime: String
