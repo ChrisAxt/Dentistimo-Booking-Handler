@@ -30,11 +30,10 @@ const statusTopic = '/Team5/Dentistimo/BookingStatus'
 //TODO: define options for mqtt connection (client ID, etc)
 
 /** Connect to Database */
-mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@dentistimo0.vd9sq.mongodb.net/Dentistimo`);
+await mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@dentistimo0.vd9sq.mongodb.net/Dentistimo`);
 
 /**
  * Connects to the servers defined in the constants above
- * @type {MqttClient}
  */
 const client = mqtt.connect(HOST) //Change the parameter between HOST or LOCALHOST if you want to connect to the mosquitto test broker or a local broker. For local, mosquitto needs to be installed and running
 
@@ -70,8 +69,8 @@ function subscribeToTopic(topic, testIsActive, mockedData){
 /**
  * Helper method for testing a topic.
  * Publish to a given topic a mocked json object.
- * @param isActive
- * @param mockedData
+ * @param topic as a string
+ * @param mockedData as json object
  */
 function testTopic(topic, mockedData) {
     client.publish(topic, JSON.stringify(mockedData), {qos:0})
