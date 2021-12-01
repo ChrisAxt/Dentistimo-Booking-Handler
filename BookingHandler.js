@@ -111,6 +111,5 @@ function findUserBookings(message){
     // TODO:implement
     let info = JSON.parse(message.toString());
     let user = info._userID;
-
-    
+    Booking.find({ 'userID' : userID})
 }
