@@ -8,6 +8,8 @@ const Booking = require('./Models/booking.js')
 /** Subscribed topics for MQTT */
 const createBookingTopic = '/Team5/Dentistimo/Booking/Create'
 const deleteBookingTopic = '/Team5/Dentistimo/Booking/Delete'
+const getBookingsTopic = 'Team5/Dentistimo/Booking/Get'
+const getUserBookingsTopic = 'Team5/Dentistimo/Booking/user'
 
 /** Published topics for MQTT */
 const createBookingStatusTopic = '/Team5/Dentistimo/BookingStatus/Create'
@@ -21,6 +23,8 @@ const database = require('./Database')
 
 mqtt.subscribeToTopic(createBookingTopic);
 mqtt.subscribeToTopic(deleteBookingTopic);
+mqtt.subscribeToTopic(getBookingsTopic);
+mqtt.subscribeToTopic(getUserBookingsTopic);
 
 /**  Listens to message reception and reacts based on the topic */
 mqtt.client.on('message', function(topic, message){
@@ -30,6 +34,12 @@ mqtt.client.on('message', function(topic, message){
             break;
         case deleteBookingTopic:
             deleteBooking(message);
+            break;
+        case getBookingsTopic:
+            getAllBookings();
+            break;
+        case getUserBookingsTopic:
+            findUserBookings(message);
             break;
         default:
             break;
@@ -90,4 +100,17 @@ function deleteFromDatabase(booking){
         }
     })
     return result;
+}
+
+function getAllBookings(){
+    // TODO: implement
+}
+
+
+function findUserBookings(message){
+    // TODO:implement
+    let info = JSON.parse(message.toString());
+    let user = info._userID;
+
+    
 }
