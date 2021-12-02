@@ -24,8 +24,6 @@ mqtt.subscribeToTopic(createBookingTopic);
 mqtt.subscribeToTopic(deleteBookingTopic);
 mqtt.subscribeToTopic(getUserBookingsTopic);
  
-mqtt.publishToTopic(getUserBookingsTopic, '123', {qos:0});
-
 /**  Listens to message reception and reacts based on the topic */
 mqtt.client.on('message', function(topic, message){
     switch (topic) {
@@ -108,15 +106,12 @@ function findUserBookings(message){
 
 function findUserBookingsinDB(userID){
     let result;
-    console.log('userID: ' + userID);
     Booking.find({ userID : userID}, function(err, bookings) {
         if (err) {
             result = err.message;     
         } else {
             result = bookings;
         }
-        console.log('The result: ');
-        console.log(result);
         return bookings;
     })
 }
