@@ -8,8 +8,7 @@ const Booking = require('./Models/booking.js')
 /** Subscribed topics for MQTT */
 const createBookingTopic = '/Team5/Dentistimo/Booking/Create'
 const deleteBookingTopic = '/Team5/Dentistimo/Booking/Delete'
-const getBookingsTopic = 'Team5/Dentistimo/Booking/Get'
-const getUserBookingsTopic = 'Team5/Dentistimo/Booking/user'
+const getUserBookingsTopic = 'Team5/Dentistimo/Booking/User'
 
 /** Published topics for MQTT */
 const createBookingStatusTopic = '/Team5/Dentistimo/BookingStatus/Create'
@@ -23,8 +22,9 @@ const database = require('./Database')
 
 mqtt.subscribeToTopic(createBookingTopic);
 mqtt.subscribeToTopic(deleteBookingTopic);
-mqtt.subscribeToTopic(getBookingsTopic);
 mqtt.subscribeToTopic(getUserBookingsTopic);
+ 
+mqtt.publishToTopic(getUserBookingsTopic, '123', {qos:0});
 
 /**  Listens to message reception and reacts based on the topic */
 mqtt.client.on('message', function(topic, message){
@@ -34,9 +34,6 @@ mqtt.client.on('message', function(topic, message){
             break;
         case deleteBookingTopic:
             deleteBooking(message);
-            break;
-        case getBookingsTopic:
-            getAllBookings();
             break;
         case getUserBookingsTopic:
             findUserBookings(message);
@@ -102,14 +99,24 @@ function deleteFromDatabase(booking){
     return result;
 }
 
-function getAllBookings(){
-    // TODO: implement
-}
-
-
 function findUserBookings(message){
     // TODO:implement
-    let info = JSON.parse(message.toString());
-    let user = info._userID;
-    Booking.find({ 'userID' : userID})
+    let userID = JSON.parse(message.toString());
+    let bookingsResult = findUserBookingsinDB(userID)
+    mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userID}`, JSON.stringify(bookingsResult), {qos:1})
+}
+
+function findUserBookingsinDB(userID){
+    let result;
+    console.log('userID: ' + userID);
+    Booking.find({ userID : userID}, function(err, bookings) {
+        if (err) {
+            result = err.message;     
+        } else {
+            result = bookings;
+        }
+        console.log('The result: ');
+        console.log(result);
+        return bookings;
+    })
 }
