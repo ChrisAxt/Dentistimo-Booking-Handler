@@ -6,8 +6,8 @@ const mongoose = require("mongoose");
 const Booking = require('./Models/booking.js')
 
 /** Subscribed topics for MQTT */
-const createBookingTopic = 'Team5/Dentistimo/Booking/Create'
-const deleteBookingTopic = 'Team5/Dentistimo/Booking/Delete'
+const createBookingTopic = 'Team5/Dentistimo/Booking/Create/Request'
+const deleteBookingTopic = 'Team5/Dentistimo/Booking/Delete/Request'
 
 /** Published topics for MQTT */
 const topicBookingSucceeded = 'Team5/Dentistimo/Booking/Create/Success'

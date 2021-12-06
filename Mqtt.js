@@ -2,11 +2,11 @@ const mqtt = require('mqtt')
 //TODO: define options for mqtt connection (client ID, etc)
 
 /** Different MQTT servers */
-const LOCALHOST = ''; //TODO: fill with the local mqtt address
+const LOCALHOST = 'mqtt://127.0.0.1:1883'; //TODO: fill with the local mqtt address
 const HOST = 'mqtt://test.mosquitto.org'; //mosquitto test server address
 
 /** Connects to the servers defined in the constants above */
-const client = mqtt.connect(HOST) //Change the parameter between HOST or LOCALHOST if you want to connect to the mosquitto test broker or a local broker. For local, mosquitto needs to be installed and running
+const client = mqtt.connect(LOCALHOST) //Change the parameter between HOST or LOCALHOST if you want to connect to the mosquitto test broker or a local broker. For local, mosquitto needs to be installed and running
 module.exports.client = client;
 
 /**
