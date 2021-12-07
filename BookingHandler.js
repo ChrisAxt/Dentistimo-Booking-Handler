@@ -8,6 +8,7 @@ const Booking = require('./Models/booking.js')
 /** Subscribed topics for MQTT */
 const createBookingTopic = 'Team5/Dentistimo/Booking/Create/Request'
 const deleteBookingTopic = 'Team5/Dentistimo/Booking/Delete/Request'
+const getUserBookingsTopic = 'Team5/Dentistimo/Booking/User'
 
 /** Published topics for MQTT */
 const topicBookingSucceeded = 'Team5/Dentistimo/Booking/Create/Success'
@@ -23,7 +24,8 @@ const database = require('./Database')
 
 mqtt.subscribeToTopic(createBookingTopic);
 mqtt.subscribeToTopic(deleteBookingTopic);
-
+mqtt.subscribeToTopic(getUserBookingsTopic);
+ 
 /**  Listens to message reception and reacts based on the topic */
 mqtt.client.on('message', function(topic, message){
     switch (topic) {
@@ -32,6 +34,9 @@ mqtt.client.on('message', function(topic, message){
             break;
         case deleteBookingTopic:
             deleteBooking(message);
+            break;
+        case getUserBookingsTopic:
+            findUserBookings(message);
             break;
         default:
             break;
@@ -87,5 +92,26 @@ function deleteFromDatabase(booking){
         }else{
             mqtt.publishToTopic(topicDeleteBookingSucceeded, JSON.stringify(booking), {qos:1})
         }
+    })
+    return result;
+}
+
+function findUserBookings(message){
+    // TODO:implement
+    let user = JSON.parse(message.toString())
+    let userID = user.userID;
+    let bookingsResult = findUserBookingsinDB(userID)
+    mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userID}`, JSON.stringify(bookingsResult), {qos:1})
+}
+
+function findUserBookingsinDB(userID){
+    let result;
+    Booking.find({ userID : userID}, function(err, bookings) {
+        if (err) {
+            result = err.message;     
+        } else {
+            result = bookings;
+        }
+        return bookings;
     })
 }
