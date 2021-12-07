@@ -6,14 +6,16 @@ const mongoose = require("mongoose");
 const Booking = require('./Models/booking.js')
 
 /** Subscribed topics for MQTT */
-const createBookingTopic = '/Team5/Dentistimo/Booking/Create'
-const deleteBookingTopic = '/Team5/Dentistimo/Booking/Delete'
+const createBookingTopic = 'Team5/Dentistimo/Booking/Create/Request'
+const deleteBookingTopic = 'Team5/Dentistimo/Booking/Delete/Request'
 const getUserBookingsTopic = 'Team5/Dentistimo/Booking/User'
 
 /** Published topics for MQTT */
-const createBookingStatusTopic = '/Team5/Dentistimo/BookingStatus/Create'
-const deleteBookingStatusTopic = '/Team5/Dentistimo/BookingStatus/delete'
+const topicBookingSucceeded = 'Team5/Dentistimo/Booking/Create/Success'
+const topicBookingFailed = 'Team5/Dentistimo/Booking/Create/Fail'
 
+const topicDeleteBookingFailed = 'Team5/Dentistimo/Booking/Delete/Fail'
+const topicDeleteBookingSucceeded = 'Team5/Dentistimo/Booking/Delete/Success'
 /** Import the Mqtt file which connects to the broker and provide client,as well as publishing and subscribing functions */
 const mqtt = require('./Mqtt')
 
@@ -47,26 +49,24 @@ mqtt.client.on('message', function(topic, message){
  */
 function createNewBooking(message) {
     let newBooking = new Booking(JSON.parse(message.toString()))
-    let bookingResult = saveBookingToDB(newBooking)
-    mqtt.publishToTopic(createBookingStatusTopic, JSON.stringify(bookingResult), {qos:1})
+    saveBookingToDB(newBooking)
 }
 
 /**
- * Helper method that saves a new booking to the Database and returns the result
+ * Helper method that saves a new booking to the Database and publish the result via MQTT to the relevant topics
  * -> Either an error message
  * -> Either the new booking JSON object
  * @param newBooking
  */
 function saveBookingToDB(newBooking) {
-    let result;
     newBooking.save( function(err, newBooking){
         if(err){
-            result = err.message
+            mqtt.publishToTopic(topicBookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
+            console.log(err.message)
         }else{
-            result = newBooking
+            mqtt.publishToTopic(topicBookingSucceeded, JSON.stringify(newBooking), {qos:1})
         }
     })
-    return result
 }
 
 /**
@@ -75,8 +75,7 @@ function saveBookingToDB(newBooking) {
  */
 function deleteBooking(message) {
     let booking = JSON.parse(message.toString())
-    let deleteResult = deleteFromDatabase(booking)
-    mqtt.publishToTopic(deleteBookingStatusTopic, JSON.stringify(deleteResult), {qos:1})
+    deleteFromDatabase(booking)
 }
 
 /**
@@ -89,9 +88,9 @@ function deleteFromDatabase(booking){
     let result;
     Booking.findOneAndDelete({'_id': bookingId}, function(err, booking){
         if (err){
-            result = err.message
+            mqtt.publishToTopic(topicDeleteBookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
         }else{
-            result = booking
+            mqtt.publishToTopic(topicDeleteBookingSucceeded, JSON.stringify(booking), {qos:1})
         }
     })
     return result;
