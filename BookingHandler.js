@@ -30,6 +30,8 @@ const database = require('./Database')
 mqtt.subscribeToTopic(createBookingTopic);
 mqtt.subscribeToTopic(deleteBookingTopic);
 mqtt.subscribeToTopic(getUserBookingsTopic);
+mqtt.subscribeToTopic(getABookingTopic);
+
  
 /**  Listens to message reception and reacts based on the topic */
 mqtt.client.on('message', function(topic, message){
@@ -42,6 +44,9 @@ mqtt.client.on('message', function(topic, message){
             break;
         case getUserBookingsTopic:
             findUserBookings(message);
+            break;
+        case getABookingTopic:
+            getABooking(message)
             break;
         default:
             break;
@@ -107,7 +112,7 @@ function findUserBookings(message){
 }
 
 function findUserBookingsInDB(userID){
-    Booking.find({ userID : userID}, function(err, bookings) {
+    Booking.find({ userID : userID }, function(err, bookings) {
         if (err) {
             return {'error': err.message};
         } else {
