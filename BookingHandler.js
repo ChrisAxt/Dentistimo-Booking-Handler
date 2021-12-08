@@ -109,8 +109,7 @@ function deleteFromDatabase(booking){
 function findUserBookings(message){
     let user = JSON.parse(message.toString())
     let userID = user.userID;
-    let bookingsResult = findUserBookingsInDB(userID)
-    mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userID}`, JSON.stringify(bookingsResult), {qos:1})
+    findUserBookingsInDB(userID)
 }
 
 /**
