@@ -102,21 +102,27 @@ function deleteFromDatabase(booking){
         }
     })
 }
-
+/**
+ * handles the get request for all booking for a given user.
+ * @param message as Stringified json object sent via mqtt. -> needs the _id of the booking in the json object.
+ */
 function findUserBookings(message){
-    // TODO:implement
     let user = JSON.parse(message.toString())
     let userID = user.userID;
     let bookingsResult = findUserBookingsInDB(userID)
     mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userID}`, JSON.stringify(bookingsResult), {qos:1})
 }
 
+/**
+ * helper method that retrieves the bookings that are attached to a given SSN and publishes the result of the operation.
+ * @param UserID as an json object with the _id key value pair of the booking to be deleted.
+ */
 function findUserBookingsInDB(userID){
     Booking.find({ userID : userID }, function(err, bookings) {
         if (err) {
-            return {'error': err.message};
+            mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userID}`, JSON.stringify({'error': err.message}), {qos:1})
         } else {
-            return bookings;
+            mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userID}`, JSON.stringify({bookings}), {qos:1})
         }
     })
 }
