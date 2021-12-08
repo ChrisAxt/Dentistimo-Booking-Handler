@@ -9,6 +9,7 @@ const Booking = require('./Models/booking.js')
 const createBookingTopic = 'Team5/Dentistimo/Booking/Create/Request'
 const deleteBookingTopic = 'Team5/Dentistimo/Booking/Delete/Request'
 const getUserBookingsTopic = 'Team5/Dentistimo/Booking/User'
+const getABookingTopic = 'Team5/Dentistimo/Booking/Get/Request'
 
 /** Published topics for MQTT */
 const topicBookingSucceeded = 'Team5/Dentistimo/Booking/Create/Success'
@@ -16,6 +17,10 @@ const topicBookingFailed = 'Team5/Dentistimo/Booking/Create/Fail'
 
 const topicDeleteBookingFailed = 'Team5/Dentistimo/Booking/Delete/Fail'
 const topicDeleteBookingSucceeded = 'Team5/Dentistimo/Booking/Delete/Success'
+
+const topicGetABookingSucceeded = 'Team5/Dentistimo/Booking/Get/Success'
+const topicGetABookingFailed = 'Team5/Dentistimo/Booking/Get/Failed'
+
 /** Import the Mqtt file which connects to the broker and provide client,as well as publishing and subscribing functions */
 const mqtt = require('./Mqtt')
 
@@ -25,6 +30,8 @@ const database = require('./Database')
 mqtt.subscribeToTopic(createBookingTopic);
 mqtt.subscribeToTopic(deleteBookingTopic);
 mqtt.subscribeToTopic(getUserBookingsTopic);
+mqtt.subscribeToTopic(getABookingTopic);
+
  
 /**  Listens to message reception and reacts based on the topic */
 mqtt.client.on('message', function(topic, message){
@@ -37,6 +44,9 @@ mqtt.client.on('message', function(topic, message){
             break;
         case getUserBookingsTopic:
             findUserBookings(message);
+            break;
+        case getABookingTopic:
+            getABooking(message)
             break;
         default:
             break;
@@ -79,13 +89,11 @@ function deleteBooking(message) {
 }
 
 /**
- * delete the given booking (_id based) from the database and return the result of the operation.
+ * delete the given booking (_id based) from the database and publishes the result of the operation.
  * @param booking as an json object with the _id key value pair of the booking to be deleted.
- * @returns result of the operation
  */
 function deleteFromDatabase(booking){
     let bookingId = booking._id;
-    let result;
     Booking.findOneAndDelete({'_id': bookingId}, function(err, booking){
         if (err){
             mqtt.publishToTopic(topicDeleteBookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
@@ -93,25 +101,52 @@ function deleteFromDatabase(booking){
             mqtt.publishToTopic(topicDeleteBookingSucceeded, JSON.stringify(booking), {qos:1})
         }
     })
-    return result;
 }
-
+/**
+ * handles the get request for all booking for a given user.
+ * @param message as Stringified json object sent via mqtt. -> needs the _id of the booking in the json object.
+ */
 function findUserBookings(message){
-    // TODO:implement
     let user = JSON.parse(message.toString())
     let userID = user.userID;
-    let bookingsResult = findUserBookingsinDB(userID)
-    mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userID}`, JSON.stringify(bookingsResult), {qos:1})
+    findUserBookingsInDB(userID)
 }
 
-function findUserBookingsinDB(userID){
-    let result;
-    Booking.find({ userID : userID}, function(err, bookings) {
+/**
+ * helper method that retrieves the bookings that are attached to a given SSN and publishes the result of the operation.
+ * @param UserID as an json object with the _id key value pair of the booking to be deleted.
+ */
+function findUserBookingsInDB(userID){
+    Booking.find({ userID : userID }, function(err, bookings) {
         if (err) {
-            result = err.message;     
+            mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userID}`, JSON.stringify({'error': err.message}), {qos:1})
         } else {
-            result = bookings;
+            mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userID}`, JSON.stringify({bookings}), {qos:1})
         }
-        return bookings;
+    })
+}
+
+
+/**
+ * handles the get request for a given booking.
+ * @param message as Stringified json object sent via mqtt. -> needs the _id of the booking in the json object.
+ */
+function getABooking(message){
+    let booking = JSON.parse(message.toString())
+    getABookingFromDatabase(booking);
+}
+
+/**
+ * helper method that retrieves the given booking (_id based) from the database and publishes the result of the operation.
+ * @param booking as an json object with the _id key value pair of the booking to be deleted.
+ */
+function getABookingFromDatabase(booking) {
+    let bookingID = booking._id;
+    Booking.findById(bookingID, function(err, booking) {
+        if (err){
+            mqtt.publishToTopic(topicGetABookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
+        }else{
+            mqtt.publishToTopic(topicGetABookingSucceeded, JSON.stringify(booking), {qos:1})
+        }
     })
 }
