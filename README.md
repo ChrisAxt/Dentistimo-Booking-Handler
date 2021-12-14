@@ -3,11 +3,7 @@
 ## Description
 
 This component is part of the the distributed system DENTISTIMO, a web application that offers a geolocalisation based dental care booking system.
-The booking handler takes care of requests regarding bookings. More details can be found in the component diagram below as well as further in this README.md file. 
-
-## System Architecture - Component Diagram
-
-> ![Component Diagram](Assets/System_Component_Diagram_v2.0.png)
+The booking handler takes care of requests regarding bookings. More details can be found in the component diagram in the [documentation repository](https://git.chalmers.se/courses/dit355/test-teams-formation/team-5/team-4-project). 
 
 ## Component Responsibilities
 
