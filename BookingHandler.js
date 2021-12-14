@@ -108,20 +108,20 @@ function deleteFromDatabase(booking){
  */
 function findUserBookings(message){
     let user = JSON.parse(message.toString())
-    let userID = user.userID;
-    findUserBookingsInDB(userID)
+    let userSSN = user.userSSN;
+    findUserBookingsInDB(userSSN)
 }
 
 /**
  * helper method that retrieves the bookings that are attached to a given SSN and publishes the result of the operation.
  * @param UserID as an json object with the _id key value pair of the booking to be deleted.
  */
-function findUserBookingsInDB(userID){
-    Booking.find({ userID : userID }, function(err, bookings) {
+function findUserBookingsInDB(userSSN){
+    Booking.find({ userSSN : userSSN }).populate('dentist').exec( function(err, bookings) {
         if (err) {
-            mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userID}`, JSON.stringify({'error': err.message}), {qos:1})
+            mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userSSN}`, JSON.stringify({'error': err.message}), {qos:1})
         } else {
-            mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userID}`, JSON.stringify({bookings}), {qos:1})
+            mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userSSN}`, JSON.stringify({bookings}), {qos:1})
         }
     })
 }
@@ -142,7 +142,7 @@ function getABooking(message){
  */
 function getABookingFromDatabase(booking) {
     let bookingID = booking._id;
-    Booking.findById(bookingID, function(err, booking) {
+    Booking.findById(bookingID).populate('dentist').exec( function(err, booking) {
         if (err){
             mqtt.publishToTopic(topicGetABookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
         }else{
