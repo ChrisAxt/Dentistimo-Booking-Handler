@@ -142,7 +142,7 @@ function getABooking(message){
  */
 function getABookingFromDatabase(booking) {
     let bookingID = booking._id;
-    Booking.findById(bookingID).populate('dentist').exec( function(err, booking) {
+    Booking.findById(bookingID).populate('clinicID').exec( function(err, booking) {
         if (err){
             mqtt.publishToTopic(topicGetABookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
         }else{
