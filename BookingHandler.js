@@ -121,7 +121,11 @@ function findUserBookingsInDB(userSSN){
         if (err) {
             mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userSSN}`, JSON.stringify({'error': err.message}), {qos:1})
         } else {
-            mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userSSN}`, JSON.stringify({bookings}), {qos:1})
+            if(bookings !== null){
+                mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userSSN}/Success`, JSON.stringify({bookings}), {qos:1})
+            }else{
+                mqtt.publishToTopic(`Team5/Dentistimo/Booking/${userSSN}/Failure`, JSON.stringify({'error': 'There is no booking for this SSN in our database'}), {qos:1})
+            }
         }
     })
 }
@@ -144,9 +148,13 @@ function getABookingFromDatabase(booking) {
     let bookingID = booking._id;
     Booking.findById(bookingID).populate('clinic').exec( function(err, booking) {
         if (err){
-            mqtt.publishToTopic(topicGetABookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
+            mqtt.publishToTopic(topicGetABookingFailed, JSON.stringify({'error':err.message}), {qos:1})
         }else{
-            mqtt.publishToTopic(topicGetABookingSucceeded, JSON.stringify(booking), {qos:1})
+            if(booking !== null){
+                mqtt.publishToTopic(topicGetABookingSucceeded, JSON.stringify(booking), {qos:1})
+            }else{
+                mqtt.publishToTopic(topicGetABookingFailed, JSON.stringify({'error':'The booking has not been found'}), {qos:1})
+            }
         }
     })
 }
