@@ -6,11 +6,19 @@ const mongoose = require("mongoose");
 const Booking = require('./Models/booking.js')
 
 /** Subscribed topics for MQTT */
+
 const createBookingTopic = 'Team5/Dentistimo/Booking/Create/Request'
 const deleteBookingTopic = 'Team5/Dentistimo/Booking/Delete/Request'
 const getUserBookingsTopic = 'Team5/Dentistimo/Booking/User'
 const getABookingTopic = 'Team5/Dentistimo/Booking/Get/Request'
 
+const topicsToSubscribeTo = [
+    createBookingTopic,
+    deleteBookingTopic,
+    getUserBookingsTopic,
+    getABookingTopic
+]
+module.exports.listOfTopics = topicsToSubscribeTo
 /** Published topics for MQTT */
 const topicBookingSucceeded = 'Team5/Dentistimo/Booking/Create/Success'
 const topicBookingFailed = 'Team5/Dentistimo/Booking/Create/Fail'
@@ -23,20 +31,18 @@ const topicGetABookingFailed = 'Team5/Dentistimo/Booking/Get/Failed'
 
 /** Import the Mqtt file which connects to the broker and provide client,as well as publishing and subscribing functions */
 const mqtt = require('./Mqtt')
+exports.mqtt = mqtt
 
 /** Import the database. Connection happens in the Database.js file */
 const database = require('./Database')
 
-mqtt.subscribeToTopic(createBookingTopic);
-mqtt.subscribeToTopic(deleteBookingTopic);
-mqtt.subscribeToTopic(getUserBookingsTopic);
-mqtt.subscribeToTopic(getABookingTopic);
+mqtt.subscribeToAll(topicsToSubscribeTo)
 
- 
 /**  Listens to message reception and reacts based on the topic */
 mqtt.client.on('message', function(topic, message){
     switch (topic) {
         case createBookingTopic:
+            console.log(message)
             createNewBooking(message);
             break;
         case deleteBookingTopic:
