@@ -64,8 +64,14 @@ mqtt.client.on('message', function(topic, message){
  * @param message as Stringified json object sent via mqtt. -> format of the object should follow the booking.js model
  */
 function createNewBooking(message) {
-    let newBooking = new Booking(JSON.parse(message.toString()))
-    saveBookingToDB(newBooking)
+    try {
+        let newBooking = new Booking(JSON.parse(message.toString()));
+        saveBookingToDB(newBooking);
+    } catch (error) {
+        mqtt.publishToTopic(topicBookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
+        console.log(error);
+    }
+    
 }
 
 /**
@@ -90,8 +96,14 @@ function saveBookingToDB(newBooking) {
  * @param message as Stringified json object sent via mqtt. -> needs the _id of the booking in the json object.
  */
 function deleteBooking(message) {
-    let booking = JSON.parse(message.toString())
-    deleteFromDatabase(booking)
+    try {
+        let booking = JSON.parse(message.toString())
+        deleteFromDatabase(booking)
+    } catch (error) {
+        mqtt.publishToTopic(topicDeleteBookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
+        console.log(error);
+    }
+    
 }
 
 /**
@@ -113,9 +125,14 @@ function deleteFromDatabase(booking){
  * @param message as Stringified json object sent via mqtt. -> needs the _id of the booking in the json object.
  */
 function findUserBookings(message){
-    let user = JSON.parse(message.toString())
-    let userSSN = user.userSSN;
-    findUserBookingsInDB(userSSN)
+    try {
+        let user = JSON.parse(message.toString())
+        let userSSN = user.userSSN;
+        findUserBookingsInDB(userSSN)
+    } catch (error) {
+        mqtt.publishToTopic(topicGetABookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
+        console.log(error);
+    }
 }
 
 /**
@@ -142,8 +159,14 @@ function findUserBookingsInDB(userSSN){
  * @param message as Stringified json object sent via mqtt. -> needs the _id of the booking in the json object.
  */
 function getABooking(message){
-    let booking = JSON.parse(message.toString())
-    getABookingFromDatabase(booking);
+    try {
+        let booking = JSON.parse(message.toString())
+        getABookingFromDatabase(booking);
+    } catch (error) {
+        mqtt.publishToTopic(topicGetABookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
+        console.log(error);
+    }
+    
 }
 
 /**
