@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 
 /** Database Models */
 const Booking = require('./Models/booking.js')
+const Dentists = require('./Models/dentist.js')
 
 /** Subscribed topics for MQTT */
 
@@ -42,7 +43,6 @@ mqtt.subscribeToAll(topicsToSubscribeTo)
 mqtt.client.on('message', function(topic, message){
     switch (topic) {
         case createBookingTopic:
-            console.log(message)
             createNewBooking(message);
             break;
         case deleteBookingTopic:
@@ -86,7 +86,15 @@ function saveBookingToDB(newBooking) {
             mqtt.publishToTopic(topicBookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
             console.log(err.message)
         }else{
-            mqtt.publishToTopic(topicBookingSucceeded, JSON.stringify(newBooking), {qos:1})
+            let newBookingId = newBooking._id
+            Booking.findById(newBookingId).populate('clinic').exec(function(err, result){
+                if(err){
+                    mqtt.publishToTopic(topicBookingFailed, JSON.stringify({'error' : err.message}), {qos:1})
+                    console.log(err.message)
+                }else{
+                    mqtt.publishToTopic(topicBookingSucceeded, JSON.stringify(result), {qos:1})
+                }
+            })
         }
     })
 }
