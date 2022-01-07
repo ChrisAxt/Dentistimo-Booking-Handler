@@ -7,7 +7,7 @@ The booking handler takes care of requests regarding bookings. More details can 
 
 ## Component Responsibilities
 
-- Listen to MQQT broker for booking data from front end
+- Listen to MQTT broker for booking data from front end
 - Save booking to database
 - Delete one booking from database
 - Publish outcome of data maniuplation via mqtt
@@ -55,7 +55,7 @@ The format varies based on the request:
 
 ## Installing and running
 
-### Prerequisits:
+### Prerequisits
 #### MQTT
 You need to have a running version of <b>MQTT</b> on your machine. Please refer to this [link](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwjG3fWb6NH0AhXpQvEDHSGLC2MQFnoECAMQAQ&url=https%3A%2F%2Fmosquitto.org%2Fdownload%2F&usg=AOvVaw2rLN-Os_zfUrtqeV1Lrunf) to download the mosquitto broker if you do not have any. 
 #### Node.js
@@ -67,6 +67,7 @@ To download the latest version of node.js, please follow this [link](https://nod
 | ------ | ------ |
 | start your MQTT broker on port 1883| This differs based on which broker, as well as your settings. Make sure the broker listens to port 1883. (Default port with mosquitto) |
 | clone this project on your machine | `git clone < SSH address or HTTPS address >` |
+| Go to the repo and add .env file | Please contact one of the developers of this project to recieve the contents of the file. It should be placed directly in the repo. <img src="./Assets/picEnvBooking.png" width="120" height="120">|
 | go to the repo and run the following  | `npm start` |
 
 In the window of your broker, you should see a message similar to this:
